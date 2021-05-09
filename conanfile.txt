@@ -1,0 +1,7 @@
+[requires]
+boost/1.75.0
+celero/2.6.0
+cxxopts/2.2.1
+
+[generators]
+cmake
