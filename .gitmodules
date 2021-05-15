@@ -2,3 +2,7 @@
 	path = extern/beast
 	url = https://github.com/boostorg/beast.git
 	branch = master
+[submodule "external/certify"]
+	path = external/certify
+	url = https://github.com/djarek/certify.git
+	branch = master
