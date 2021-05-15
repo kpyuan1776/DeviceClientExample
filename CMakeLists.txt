@@ -62,6 +62,9 @@ add_definitions (-DBOOST_ALL_DYN_LINK)
 # Find the QtWidgets library
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
 
+# boost beast ssl stuff needs openssl
+find_package(OpenSSL REQUIRED)
+
 # Add conan libraries
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
