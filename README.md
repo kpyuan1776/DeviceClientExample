@@ -26,5 +26,6 @@ An examplified client software for example running on an embedded device
 
 
 ## remarks
+* install conan with python3 ```pip3 install conan``` (python2 is deprecated)
 * not sure if ```sudo apt install libssl-dev``` is required?
 
