@@ -1,6 +1,6 @@
 # Sources and Headers
-set(LIBRARY_SOURCES "my_lib.cpp" "httprestclient.cpp")
-set(LIBRARY_HEADERS "${PROJECT_SOURCE_DIR}/include/my_lib.h" "${PROJECT_SOURCE_DIR}/include/httprestclient.h")
+set(LIBRARY_SOURCES "my_lib.cpp" "httprestclient.cpp" "utils.cpp")
+set(LIBRARY_HEADERS "${PROJECT_SOURCE_DIR}/include/my_lib.h" "${PROJECT_SOURCE_DIR}/include/httprestclient.h" "${PROJECT_SOURCE_DIR}/include/utils.h")
 set(LIBRARY_INCLUDES "${PROJECT_SOURCE_DIR}/include/")
 
 # MyLib Library
