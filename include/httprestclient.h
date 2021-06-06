@@ -1,5 +1,6 @@
-#ifndef HTTP_REST_CLIENT_ENCODER_H
-#define HTTP_REST_CLIENT_ENCODER_H
+#ifndef HTTP_REST_CLIENT_H
+#define HTTP_REST_CLIENT_H
+
 
 #include "utils.h"
 
@@ -23,7 +24,7 @@
 #include <memory>
 #include <string>
 
-#include "json.hpp"
+//#include "json.hpp"
 
 
 namespace beast = boost::beast;
@@ -52,6 +53,8 @@ class RestClientProtocoll
     virtual ~RestClientProtocoll() = default;
     virtual std::unique_ptr<SOCTYPE> connect(std::string const& hostname) = 0; 
     virtual http::response<http::string_body> get(SOCTYPE& stream,boost::string_view hostname,boost::string_view uri) = 0;
+    virtual http::response<http::string_body> get(SOCTYPE& stream,boost::string_view hostname,
+                                                    boost::string_view uri, const std::string& username, const std::string& password) = 0;
 };
 
 
@@ -65,46 +68,30 @@ class RestClientProtocoll
 class HttpsRestClient : RestClientProtocoll<ssl::stream<tcp::socket>>
 {
   public:
-    HttpsRestClient()
-    {
-        ssl_ctx.set_verify_mode(ssl::context::verify_peer |
-                            ssl::context::verify_fail_if_no_peer_cert);
-        ssl_ctx.set_default_verify_paths();
-        boost::certify::enable_native_https_server_verification(ssl_ctx);
-    }
+    /**
+     * @brief Construct a new Https Rest Client object
+     * 
+     */
+    HttpsRestClient();
 
-    std::unique_ptr<ssl::stream<tcp::socket>>
-    connect(std::string const& hostname) override
-    {
-        auto stream = boost::make_unique<ssl::stream<tcp::socket>>(
-        sslConnection(hostname), ssl_ctx);
-        // tag::stream_setup_source[]
-        boost::certify::set_server_hostname(*stream, hostname);
-        boost::certify::sni_hostname(*stream, hostname);
-        // end::stream_setup_source[]
+    /**
+     * @brief 
+     * 
+     * @param hostname 
+     * @return std::unique_ptr<ssl::stream<tcp::socket>> 
+     */
+    std::unique_ptr<ssl::stream<tcp::socket>> connect(std::string const& hostname) override;
 
-        stream->handshake(ssl::stream_base::handshake_type::client);
-        return stream;
-    }
-
-    http::response<http::string_body>
-    get(ssl::stream<tcp::socket>& stream,
-        boost::string_view hostname,
-        boost::string_view uri)
-    {
-        http::request<http::empty_body> request;
-        request.method(http::verb::get);
-        request.target(uri);
-        request.keep_alive(false);
-        request.set(http::field::host, hostname);
-        http::write(stream, request);
-
-        http::response<http::string_body> response;
-        beast::flat_buffer buffer;
-        http::read(stream, buffer, response);
-
-        return response;
-    }
+    /**
+     * @brief 
+     * 
+     * @param stream 
+     * @param hostname 
+     * @param uri 
+     * @return http::response<http::string_body> 
+     */
+    http::response<http::string_body> get(ssl::stream<tcp::socket>& stream,
+                                boost::string_view hostname,boost::string_view uri) override;
 
     /**
      * @brief 
@@ -117,28 +104,8 @@ class HttpsRestClient : RestClientProtocoll<ssl::stream<tcp::socket>>
      * @return http::response<http::string_body> 
      */
     http::response<http::string_body>
-    get(ssl::stream<tcp::socket>& stream,
-        boost::string_view hostname,
-        boost::string_view uri,
-        const std::string& username,
-        const std::string& password)
-    {
-        http::request<http::empty_body> request;
-        request.method(http::verb::get);
-        request.target(uri);
-        request.keep_alive(false);
-        request.set(http::field::host, hostname);
-        request.set(boost::beast::http::field::authorization,
-            "Basic " + Base64Encoder::encode(username+":"+password));
-
-        http::write(stream, request);
-
-        http::response<http::string_body> response;
-        beast::flat_buffer buffer;
-        http::read(stream, buffer, response);
-
-        return response;
-    }
+    get(ssl::stream<tcp::socket>& stream, boost::string_view hostname, boost::string_view uri,
+        const std::string& username, const std::string& password) override;
 
   private:
     asio::io_context ctx;
@@ -146,20 +113,9 @@ class HttpsRestClient : RestClientProtocoll<ssl::stream<tcp::socket>>
     std::unique_ptr<ssl::stream<tcp::socket>> stream_ptr;
 
 
-    tcp::resolver::results_type
-    resolve(std::string const& hostname)
-    {
-        tcp::resolver resolver{ctx};
-        return resolver.resolve(hostname, "https");
-    }
+    tcp::resolver::results_type resolve(std::string const& hostname);
 
-    tcp::socket
-    sslConnection(std::string const& hostname)
-    {
-        tcp::socket socket{ctx};
-        asio::connect(socket, resolve(hostname));
-        return socket;
-    }
+    tcp::socket sslConnection(std::string const& hostname);
 
 };
 
@@ -170,97 +126,28 @@ class HttpsRestClient : RestClientProtocoll<ssl::stream<tcp::socket>>
 class HttpClient : RestClientProtocoll<tcp::socket>
 {
   public:
-    HttpClient()
-    {}
+    HttpClient();
 
-    std::unique_ptr<tcp::socket>
-    connect(std::string const& hostname) override
-    {
-
-        auto stream = boost::make_unique<tcp::socket>(connection(hostname));
-        return stream;
-    }
+    std::unique_ptr<tcp::socket> connect(std::string const& hostname) override;
 
 
-    http::response<http::string_body>
-    get(tcp::socket& stream,
-        boost::string_view hostname,
-        boost::string_view uri)
-    {
-        http::request<http::empty_body> request;
-        request.method(http::verb::get);
-        request.target(uri);
-        request.keep_alive(false);
-        request.set(http::field::host, hostname);
-        http::write(stream, request);
+    http::response<http::string_body> get(tcp::socket& stream,
+                                    boost::string_view hostname,
+                                    boost::string_view uri) override;
 
-        http::response<http::string_body> response;
-        beast::flat_buffer buffer;
-        http::read(stream, buffer, response);
-
-        return response;
-    }
 
 
   private:
     std::unique_ptr<tcp::socket> stream_ptr;
     asio::io_context ctx;
 
-    tcp::resolver::results_type
-    resolve(std::string const& hostname)
-    {
-        tcp::resolver resolver{ctx};
-        return resolver.resolve(hostname, "http");
-    }
+    tcp::resolver::results_type resolve(std::string const& hostname);
 
-    tcp::socket
-    connection(std::string const& hostname)
-    {
-        tcp::socket socket{ctx};
-        asio::connect(socket, resolve(hostname));
-        return socket;
-    }
+    tcp::socket connection(std::string const& hostname);
 
 };
 
 
 
 
-template <typename RCP>
-class ResponseProcessor
-{
-  public:
-    ResponseProcessor(const std::string& hostname, const std::string& user,
-                const std::string& pswd): host(hostname), username(user), password(pswd)
-    {}
-
-    ResponseProcessor(const std::string& hostname): host(hostname)
-    {}
-
-    json::JSON getVersion(const std::string& uri)
-    {
-        stream_ptr = restClientProtocol.connect(host);
-        auto response = restClientProtocol.get(*stream_ptr, host, uri, username, password);
-        stream_ptr->shutdown(ec);
-        stream_ptr->next_layer().close(ec);
-        return json::JSON::Load( response.body() );
-    }
-
-  private:
-    std::string host;
-    std::string username;
-    std::string password;
-    boost::system::error_code ec;
-    std::unique_ptr<ssl::stream<tcp::socket>> stream_ptr;
-    RCP restClientProtocol{};    
-};
-
-
-
-
-
-
-
-
-
-#endif //end HTTP_REST_CLIENT_ENCODER_H
+#endif //end HTTP_REST_CLIENT_H
