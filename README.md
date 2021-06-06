@@ -19,7 +19,7 @@ An examplified client software for example running on an embedded device
 * in build ```cmake ..```
 * ```make```
 * to run program ```bin/./DeviceClientExample_Executable```
-  * ```bin/./DeviceClientExample_Executable www.example.com 80 /```
+  * ```bin/./DeviceClientExample_Executable```
 * run unit tests ```bin/./DeviceClientExample_unit_tests```
 * create doxygen documentation in docs/html ```make DeviceClientExample_docs```
 * build benchmark executable ```cmake .. -D ENABLE_BENCHMARK=ON && make && bin/./DeviceClientExample_benchmarks```
