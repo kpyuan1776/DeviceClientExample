@@ -12,47 +12,57 @@ using namespace boost::python;
 #include <QApplication>
 
 #include "my_lib.h"
+#include "messagehandling.h"
+#include "devicestate.h"
 
-/*
-#include <boost/beast/core.hpp>
-#include <boost/beast/http.hpp>
-#include <boost/beast/version.hpp>
-*/
-#include <boost/asio/connect.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <cstdlib>
-#include <functional>
+
+
 #include <iostream>
-#include <memory>
-#include <string>
+#include <thread>
 
-using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
-//namespace http = boost::beast::http;    // from <boost/beast/http.hpp>
+
+#include <boost/log/trivial.hpp>
 
 
 
 using namespace std;
 
+namespace logging = boost::log;
 
 
-void processingTasks(string msg)
+
+void initLogging()
 {
-    cout << "start processing tasks:" << msg << endl;
-    print_boost_version();
+    /*logging::core::get()->set_filter
+    (
+        logging::trivial::severity >= logging::trivial::info
+    );
+    */
 }
+
+
+
+
 
 
 int main(int argc, char *argv[])
 {
-    
-    
-    thread thread_proc(processingTasks,"stuff");
+    initLogging();
 
-    QApplication a(argc, argv);
-    MainWindow w;
+
+    unique_ptr<DeviceBackendWorker> backendWorker = make_unique<DeviceBackendWorker>();
+    BOOST_LOG_TRIVIAL(debug) << "start thread for background tasks";
+    std::thread backendWorkerThread = backendWorker->go();
+
+
+    QApplication app(argc, argv);
+    MainWindow w{"test"};
     w.show();
 
-    thread_proc.join();
+    int res = app.exec();
 
-    return a.exec();
+    BOOST_LOG_TRIVIAL(info) << "join threads, main thread: id = " << this_thread::get_id();
+    backendWorkerThread.join();
+
+    return res;
 }

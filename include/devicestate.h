@@ -4,12 +4,16 @@
 #include <iostream>
 #include <string>
 #include <vector>
-using namespace std;
+
 
 #include <boost/msm/back/state_machine.hpp>
 
 #include <boost/msm/front/state_machine_def.hpp>
 #include <boost/msm/front/functor_row.hpp>
+
+#include "messagehandling.h"
+
+using namespace std;
 
 namespace msm = boost::msm;
 namespace mpl = boost::mpl;
@@ -46,6 +50,7 @@ struct DeviceStateMachine : state_machine_def<DeviceStateMachine>
         void on_entry(Event const& evt, FSM&)
         {
             cout << "do measurement..." << endl;
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
 
     };
@@ -56,7 +61,13 @@ struct DeviceStateMachine : state_machine_def<DeviceStateMachine>
         void on_entry(Event const& evt, FSM&)
         {
             cout << "check version..." << endl;
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            outData.setMessage("from producer ");
+            ProducerConsumerObjects::dataqueue.push(outData);
         }
+
+      private:
+        MessagePacket outData;
     };
 
 
@@ -66,6 +77,7 @@ struct DeviceStateMachine : state_machine_def<DeviceStateMachine>
         void on_entry(Event const& evt, FSM&)
         {
             cout << "download update..." << endl;
+            std::this_thread::sleep_for(std::chrono::seconds(5));
         }
     };
 
@@ -100,7 +112,14 @@ struct DeviceStateMachine : state_machine_def<DeviceStateMachine>
             << " on event " << typeid(e).name() << endl;
     }
 
+  private:
+    //MessagePacket outData; //TODO invalid use of non static data member ‘DeviceStateMachine::outData’
+
 };
+
+
+
+
 
 
 
@@ -109,12 +128,13 @@ class DeviceBackendWorker
   public:
     DeviceBackendWorker();
     ~DeviceBackendWorker();
-    void loop();
+    void backendLoop();
+    std::thread go();
     void info();
 
   private:
     msm::back::state_machine<DeviceStateMachine> device;
-
+    
 };
 
 

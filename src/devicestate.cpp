@@ -8,12 +8,13 @@ DeviceBackendWorker::~DeviceBackendWorker()
 {}
 
 
-void DeviceBackendWorker::loop()
+void DeviceBackendWorker::backendLoop()
 {
     info();
+
     
-    //example "game-loop" for a specific state-flow
-    for(int i=0; i<5; i++)
+    //example "loop" for a specific state-flow
+    for(int i=0; i<50; i++)
     {    
         device.process_event(MeasurementStarted{});
         info();
@@ -36,8 +37,16 @@ void DeviceBackendWorker::loop()
     device.process_event(NewVersionAvailable{});
 }
 
+
+std::thread DeviceBackendWorker::go()
+{
+    return thread([=] {backendLoop(); });
+}
+
+
 void DeviceBackendWorker::info()
 {
     auto i = device.current_state()[0];
-    cout << "The device is currently: " << device.state_names[i] << "\n";
+    BOOST_LOG_TRIVIAL(trace) << "The device is currently: " << device.state_names[i];
+    //cout << "The device is currently: " << device.state_names[i] << "\n";
 }
