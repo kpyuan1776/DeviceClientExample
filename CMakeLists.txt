@@ -54,7 +54,8 @@ set(TEST_MAIN       "${PROJECT}_unit_tests")
 set(COVERAGE_MAIN   "${PROJECT}_coverage")
 set(BENCHMARK_MAIN  "${PROJECT}_benchmarks")
 
-#find_package(Boost COMPONENTS system filesystem program_options log regex serialization REQUIRED)
+#log and log_setup required for logging
+find_package(Boost COMPONENTS system filesystem program_options log log_setup regex serialization REQUIRED)
 #include_directories(${Boost_INCLUDE_DIR})
 #link_directories(${Boost_LIBRARY_DIR})
 add_definitions (-DBOOST_ALL_DYN_LINK)
