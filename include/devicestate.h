@@ -31,6 +31,10 @@ struct UpdateDownloadFinished {};
 struct SwitchOff {};
 
 
+/**
+ * @brief state-machine pattern from boost/msm to model the different states of the device.
+ * 
+ */
 struct DeviceStateMachine : state_machine_def<DeviceStateMachine>
 {
 
@@ -122,7 +126,10 @@ struct DeviceStateMachine : state_machine_def<DeviceStateMachine>
 
 
 
-
+/**
+ * @brief wraps backend worker part in the multithreaded device application
+ * 
+ */
 class DeviceBackendWorker
 {
   public:

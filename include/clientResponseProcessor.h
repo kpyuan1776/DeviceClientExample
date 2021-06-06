@@ -6,7 +6,16 @@
 using tcp = boost::asio::ip::tcp;
 
 
-
+/**
+ * @brief template class which provides highlevel access/API communication with server backends via protocols such as https,...
+ * 
+ *  usage:  ResponseProcessor<HttpsRestClient> client{"www.SOMEHOSTADDRESS.com","username","pswd"};
+ *          auto someObjFromJSON = client.getVersion("/SOMEAPI/v1.0/test?param1=1");
+ * 
+ * @details type of stream_ptr still depends on specific protocoll <ssl::stream<tcp::socket>> is coupled to https. Should be changed.
+ * 
+ * @tparam RCP communication protocol (HttpsRestClient,... ).
+ */
 template <typename RCP>
 class ResponseProcessor
 {

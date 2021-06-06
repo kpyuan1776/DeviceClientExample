@@ -75,7 +75,7 @@ class HttpsRestClient : RestClientProtocoll<ssl::stream<tcp::socket>>
     HttpsRestClient();
 
     /**
-     * @brief 
+     * @brief connect ssl enabled tcp socket object
      * 
      * @param hostname 
      * @return std::unique_ptr<ssl::stream<tcp::socket>> 
@@ -83,7 +83,7 @@ class HttpsRestClient : RestClientProtocoll<ssl::stream<tcp::socket>>
     std::unique_ptr<ssl::stream<tcp::socket>> connect(std::string const& hostname) override;
 
     /**
-     * @brief 
+     * @brief secure GET request
      * 
      * @param stream 
      * @param hostname 
@@ -94,7 +94,7 @@ class HttpsRestClient : RestClientProtocoll<ssl::stream<tcp::socket>>
                                 boost::string_view hostname,boost::string_view uri) override;
 
     /**
-     * @brief 
+     * @brief secure GET request with basic http authentication
      * 
      * @param stream 
      * @param hostname 

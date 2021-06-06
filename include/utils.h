@@ -13,6 +13,10 @@
 
 using namespace boost::archive::iterators;
 
+/**
+ * @brief handles base64 encoding (necessary for basic authentication transmission of username and passwords)
+ * 
+ */
 class Base64Encoder
 {
   public:
