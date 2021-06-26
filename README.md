@@ -14,6 +14,7 @@ An examplified client software for example running on an embedded device
     * header: Content-Disposition: attachment, filename
 
 ## install and run
+* install conan: ```pip3 install conan``` (I've used version 1.33.0)
 * submodule init, submodule update
 * run ```make``` to install dependencies, create build and run conan install
 * in build ```cmake ..```
